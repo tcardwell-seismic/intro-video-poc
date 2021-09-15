@@ -1,0 +1,22 @@
+.App {
+  text-align: center;
+  display: flex;
+}
+
+.left {
+  width: 50%;
+}
+
+.right {
+  width: 50%;
+}
+
+video {
+  width: 960;
+  height: 540;
+}
+
+button {
+  width: 100px;
+  padding: 3px;
+}
