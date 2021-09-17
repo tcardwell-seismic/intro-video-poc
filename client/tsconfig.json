@@ -1,0 +1,15 @@
+{
+  "extends": "@seismic/toolchain/typescript/tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "allowJs": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "src/*": ["src/*"]
+    }
+  },
+  "include": [
+    "src"
+  ]
+}
