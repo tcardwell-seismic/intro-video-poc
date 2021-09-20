@@ -73,11 +73,11 @@
         "webpack-dev-server": "^3.11.2"
     },
     "dependencies": {
-        "@seismic/mantle": "^2.10.0",
+        "@seismic/mantle": "^5.2.0",
         "core-js": "^3.11.0",
         "react": "16.14.0",
         "react-dom": "16.14.0",
-        "seismic-common": "0.0.16-develop.134"
+        "seismic-common": "0.0.16-develop.134",
     },
     "babel": {
         "presets": [

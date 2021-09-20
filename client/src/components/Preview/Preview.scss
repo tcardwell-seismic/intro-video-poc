@@ -1,0 +1,37 @@
+.preview-container {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+
+    .content {
+        display: flex;
+        height: 100%;
+
+        .left {
+            display: flex;
+            align-content: center;
+            justify-content: center;
+            background-color: whitesmoke;
+            width: 70%;
+        }
+
+        .right {
+            margin-left: 15px;
+            display: flex;
+            flex-flow: column nowrap;
+            align-content: center;
+            width: 30%;
+        }
+    }
+
+    .footer {
+        margin-top: 20px;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-end;
+
+        :first-child {
+            margin-right: auto;
+        }
+    }
+}

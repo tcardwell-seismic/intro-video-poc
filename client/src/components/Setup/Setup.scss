@@ -1,0 +1,43 @@
+.setup-container {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+
+    .loading-content {
+        display: flex;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .content {
+        display: flex;
+        height: 100%;
+
+        .left {
+            display: flex;
+            flex-flow: column nowrap;
+            width: 30%;
+
+            select {
+                max-width: 250px;
+            }
+        }
+
+        .right {
+            width: 70%;
+            display: flex;
+            align-content: center;
+            justify-content: center;
+            flex-flow: row nowrap;
+            background-color: whitesmoke;
+        }
+    }
+
+    .footer {
+        margin-top: 20px;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-end;
+    }
+}

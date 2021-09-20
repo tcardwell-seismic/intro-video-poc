@@ -1,47 +1,54 @@
 import { Button } from '@seismic/mantle';
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import './Record.scss';
 
 interface RecordProp {
+    mediaStream: MediaStream | null;
     onRecordingCompleted(video: Blob): void;
     onCancel(): void;
 }
 
 export default function Record(prop: RecordProp): ReactElement {
     const [isRecording, setIsRecording] = useState(false);
-    const [stream, setMediaStream] = useState<MediaStream | null>(null);
+    const [countdown, setCountdown] = useState<number>(3);
     const recorderElement = useRef<HTMLVideoElement>(null);
     let chunks: BlobPart[] = [];
+    let interval: NodeJS.Timer;
 
     useEffect(() => {
-        async function getStream(): Promise<void> {
-            const temp = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                },
-                audio: true,
+        interval = setInterval(() => {
+            setCountdown((curr) => {
+                const newValue = curr - 1;
+                if (newValue == 0) {
+                    clearInterval(interval);
+                    startRecording();
+                }
+
+                return newValue;
             });
+        }, 1000);
 
-            setMediaStream(temp);
-        }
-
-        getStream();
+        return () => clearInterval(interval);
     }, []);
 
+    useEffect(() => {
+        if (recorderElement && recorderElement.current) {
+            recorderElement.current.srcObject = prop.mediaStream;
+        }
+    }, [recorderElement]);
+
     function startRecording(): void {
-        if (!stream) {
+        setIsRecording(true);
+        if (!prop.mediaStream) {
             throw "This isn't possible!!";
         }
 
-        console.log('Stream is rocking!');
-
-        if (!recorderElement.current) throw 'Do I need to use an effect here?';
         const video: HTMLMediaElementWithCaptureStream =
             recorderElement.current as unknown as HTMLMediaElementWithCaptureStream;
-        video.srcObject = stream;
+        video.srcObject = prop.mediaStream;
         video.captureStream = video.captureStream || video.mozCaptureStream;
 
-        const recorder = new MediaRecorder(stream, {
+        const recorder = new MediaRecorder(prop.mediaStream, {
             audioBitsPerSecond: 128000,
             videoBitsPerSecond: 2500000,
         });
@@ -60,9 +67,9 @@ export default function Record(prop: RecordProp): ReactElement {
     }
 
     function stopRecording(): void {
-        if (stream) {
-            stream.getTracks().forEach((track) => {
-                console.log('TRACK', track);
+        setIsRecording(false);
+        if (prop.mediaStream) {
+            prop.mediaStream.getTracks().forEach((track) => {
                 track.stop();
             });
         } else {
@@ -70,30 +77,30 @@ export default function Record(prop: RecordProp): ReactElement {
         }
     }
 
-    function onStartRecording(): void {
-        startRecording();
-        setIsRecording(true);
-    }
-
     function onStopRecording(): void {
         stopRecording();
-        setIsRecording(false);
     }
 
     function onCancel(): void {
         stopRecording();
-        setIsRecording(true);
-        prop.onCancel(); // TODO Do we need to cleanup and chunks here?
+        chunks = [];
+        prop.onCancel();
     }
 
     return (
         <div className="recording-container">
-            <div>
+            <div className="content">
+                {countdown > 0 && (
+                    <div>
+                        <div className="grey-background"></div>
+                        <div className="countdown">{countdown}</div>
+                    </div>
+                )}
                 <video id="recorder" width="960" height="540" autoPlay muted ref={recorderElement}></video>
             </div>
-            <div>
+            <div className="footer">
                 <Button label="Cancel" variant="secondary" onClick={onCancel} />
-                {!isRecording && <Button label="Start Recording" variant="primary" onClick={onStartRecording} />}
+                &nbsp;
                 {isRecording && <Button label="Stop Recording" variant="primary" onClick={onStopRecording} />}
             </div>
         </div>

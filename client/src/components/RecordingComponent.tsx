@@ -1,68 +1,47 @@
-import React, { MouseEventHandler, ReactElement, useState } from 'react';
-import { Button } from '@seismic/mantle';
+import React, { ReactElement, useState } from 'react';
 import WorkflowSteps from './WorkflowSteps';
 import Setup from './Setup/Setup';
 import Record from './Record/Record';
 import Preview from './Preview/Preview';
 import './RecordingComponent.scss';
 
-export default function RecordingComponent(): ReactElement {
+interface RecordingComponentProp {
+    onCancel(): void;
+}
+
+export default function RecordingComponent(prop: RecordingComponentProp): ReactElement {
     const [step, setStep] = useState(WorkflowSteps.Setup);
     const [video, setVideo] = useState<Blob | null>(null);
-
-    function getHeader(): string {
-        switch (step) {
-            case WorkflowSteps.Setup:
-                return 'Setup';
-            case WorkflowSteps.Recording:
-                return 'Recording';
-            case WorkflowSteps.Preview:
-                return 'Preview';
-            default:
-                return '';
-        }
-    }
+    const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
 
     function getContent(): ReactElement {
         switch (step) {
             case WorkflowSteps.Setup:
-                return <Setup onSetupComplete={onSetupComplete} />;
+                return <Setup onSetupComplete={onSetupComplete} onCancel={onCancel} />;
             case WorkflowSteps.Recording:
-                return <Record onRecordingCompleted={onRecordingCompleted} />;
+                return (
+                    <Record onRecordingCompleted={onRecordingCompleted} onCancel={onCancel} mediaStream={mediaStream} />
+                );
             case WorkflowSteps.Preview:
-                return <Preview video={video} onRetryRecording={onRetryRecording} onSaveVideo={onSaveVideo} />;
+                return (
+                    <Preview
+                        video={video}
+                        onRetryRecording={onRetryRecording}
+                        onSaveVideo={onSaveVideo}
+                        onCancel={onCancel}
+                    />
+                );
             default:
                 return <div></div>;
         }
     }
 
-    function previousStep(): MouseEventHandler<HTMLButtonElement> | undefined {
-        switch (step) {
-            case WorkflowSteps.Recording:
-                setStep(WorkflowSteps.Setup);
-                break;
-            case WorkflowSteps.Preview:
-                setStep(WorkflowSteps.Recording);
-                break;
-        }
-
-        return;
+    function onCancel(): void {
+        prop.onCancel();
     }
 
-    function nextStep(): MouseEventHandler<HTMLButtonElement> | undefined {
-        switch (step) {
-            case WorkflowSteps.Setup:
-                setStep(WorkflowSteps.Recording);
-                break;
-            case WorkflowSteps.Recording:
-                setStep(WorkflowSteps.Preview);
-                break;
-        }
-
-        return;
-    }
-
-    function onSetupComplete(): void {
+    function onSetupComplete(ms: MediaStream): void {
+        setMediaStream(ms);
         setStep(WorkflowSteps.Recording);
     }
 
@@ -80,14 +59,5 @@ export default function RecordingComponent(): ReactElement {
         return;
     }
 
-    return (
-        <div className="container">
-            <div className="header">{getHeader()}</div>
-            <div className="content">{getContent()}</div>
-            <div className="footer">
-                <Button label="Back" variant="secondary" onClick={previousStep} />
-                <Button label="Next" variant="primary" onClick={nextStep} />
-            </div>
-        </div>
-    );
+    return <div className="container">{getContent()}</div>;
 }

@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/media-has-caption */
-import { Button } from '@seismic/mantle';
+import { Button, Input } from '@seismic/mantle';
 import React, { ReactElement, useEffect, useRef } from 'react';
+import './Preview.scss';
 
 interface PreviewProp {
     video: Blob | null;
@@ -22,17 +23,33 @@ export default function Preview(prop: PreviewProp): ReactElement {
         prop.onCancel();
     }
 
+    function onRedo(): void {
+        prop.onRetryRecording();
+    }
+
     function onSave(): void {
         // TODO Upload to BSS
     }
 
     return (
         <div className="preview-container">
-            <div>
-                <video id="preview" width="960" height="540" autoPlay controls ref={previewElement}></video>
+            <div className="content">
+                <div className="left">
+                    <video id="preview" width="640" height="480" autoPlay controls ref={previewElement}></video>
+                </div>
+                <div className="right">
+                    <h3>Save as</h3>
+                    <label htmlFor="fileName">File name</label>
+                    <Input id="fileName" />
+                    <label htmlFor="saveTo">Save to</label>
+                    <Input id="saveTo" />
+                </div>
             </div>
-            <div>
+            <div className="footer">
+                <Button label="Redo" variant="secondary" onClick={onRedo} />
+                &nbsp;
                 <Button label="Cancel" variant="secondary" onClick={onCancel} />
+                &nbsp;
                 <Button label="Save" variant="primary" onClick={onSave} />
             </div>
         </div>

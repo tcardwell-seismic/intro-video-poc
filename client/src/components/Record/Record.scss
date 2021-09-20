@@ -1,0 +1,36 @@
+.recording-container {
+    .content {
+        position: relative;
+
+        .grey-background, .countdown {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+
+        .grey-background {
+            opacity: .6;
+            background-color: slategray;
+        }
+
+        .countdown {
+            color: white;
+            font-size: 128px;
+            line-height: 588px;
+            text-align: center;
+        }
+
+        #recorder {
+
+        }
+    }
+
+    .footer {
+        margin-top: 20px;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-end;
+    }
+}
