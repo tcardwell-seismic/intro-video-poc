@@ -1,0 +1,18 @@
+.type-selection-container {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+
+    .content {
+        display: flex;
+        flex-flow: column nowrap;
+        height: 100%;
+    }
+
+    .footer {
+        margin-top: 20px;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-end;
+    }
+}

@@ -14,8 +14,10 @@ export default function Preview(prop: PreviewProp): ReactElement {
     const previewElement = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
-        if (previewElement && previewElement.current) {
-            previewElement.current.src = URL.createObjectURL(prop.video);
+        if (previewElement && previewElement.current && prop.video) {
+            const url = URL.createObjectURL(prop.video);
+            previewElement.current.src = url;
+            return () => URL.revokeObjectURL(url);
         }
     }, [previewElement]);
 

@@ -1,4 +1,5 @@
 enum WorkflowSteps {
+    TypeSelection,
     Setup,
     Recording,
     Preview,

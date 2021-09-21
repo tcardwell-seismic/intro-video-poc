@@ -1,80 +1,107 @@
 import { Button } from '@seismic/mantle';
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import useCountDown from 'react-countdown-hook';
 import './Record.scss';
 
 interface RecordProp {
-    mediaStream: MediaStream | null;
+    audioDeviceId: string | undefined;
+    videoDeviceId: string | undefined;
+    includeScreen: boolean;
     onRecordingCompleted(video: Blob): void;
     onCancel(): void;
 }
 
 export default function Record(prop: RecordProp): ReactElement {
     const [isRecording, setIsRecording] = useState(false);
-    const [countdown, setCountdown] = useState<number>(3);
+    const [useCountdownInitialized, setUseCountdownInitialized] = useState(false);
+    const [timeLeft, { start }] = useCountDown(3000, 1000);
+    const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+    const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
     const recorderElement = useRef<HTMLVideoElement>(null);
     let chunks: BlobPart[] = [];
-    let interval: NodeJS.Timer;
 
     useEffect(() => {
-        interval = setInterval(() => {
-            setCountdown((curr) => {
-                const newValue = curr - 1;
-                if (newValue == 0) {
-                    clearInterval(interval);
-                    startRecording();
-                }
-
-                return newValue;
+        async function getAudioVideoStream() {
+            const ms = await navigator.mediaDevices.getUserMedia({
+                video: { deviceId: prop.videoDeviceId },
+                audio: { deviceId: prop.audioDeviceId },
             });
-        }, 1000);
 
-        return () => clearInterval(interval);
+            setMediaStream(ms);
+            start();
+        }
+
+        async function getAudioVideoScreenStream() {
+            const ms = await navigator.mediaDevices.getDisplayMedia({
+                video: true,
+                audio: true,
+            });
+
+            setMediaStream(ms);
+            start();
+        }
+
+        prop.includeScreen ? getAudioVideoScreenStream() : getAudioVideoStream();
     }, []);
 
     useEffect(() => {
-        if (recorderElement && recorderElement.current) {
-            recorderElement.current.srcObject = prop.mediaStream;
+        if (mediaStream) {
+            if (timeLeft === 0) {
+                if (!useCountdownInitialized) setUseCountdownInitialized(true);
+                else startRecording();
+            }
         }
-    }, [recorderElement]);
+    }, [mediaStream, timeLeft, useCountdownInitialized]);
+
+    useEffect(() => {
+        if (recorderElement && recorderElement.current && mediaStream) {
+            recorderElement.current.srcObject = mediaStream;
+        }
+    }, [recorderElement, mediaStream]);
 
     function startRecording(): void {
-        setIsRecording(true);
-        if (!prop.mediaStream) {
+        if (!mediaStream || !mediaStream.active) {
+            console.error('Media stream is either null or closed', mediaStream);
             throw "This isn't possible!!";
         }
 
         const video: HTMLMediaElementWithCaptureStream =
             recorderElement.current as unknown as HTMLMediaElementWithCaptureStream;
-        video.srcObject = prop.mediaStream;
+        video.srcObject = mediaStream;
         video.captureStream = video.captureStream || video.mozCaptureStream;
 
-        const recorder = new MediaRecorder(prop.mediaStream, {
-            audioBitsPerSecond: 128000,
-            videoBitsPerSecond: 2500000,
-        });
+        const recorder = new MediaRecorder(mediaStream);
         recorder.ondataavailable = (ev): void => {
+            console.log('RECORDER.ONDATAAVAILABLE');
             chunks.push(ev.data);
         };
-        recorder.start();
-        recorder.onstop = function (this: MediaRecorder, ev: Event): any {
-            // eslint-disable-next-line @typescript-eslint/no-this-alias
-            console.log('RECORDER.ONSTOP', this, ev);
+        recorder.onstop = () => {
+            console.log('RECORDER.ONSTOP');
+            if (mediaStream) {
+                mediaStream.getTracks().forEach((track) => {
+                    console.log('Stopping tracks!');
+                    track.stop();
+                });
+            } else {
+                throw 'No stream to stop!';
+            }
+
             const video = new Blob(chunks, { type: 'video/webm' });
-            prop.onRecordingCompleted(video);
             chunks = [];
+            prop.onRecordingCompleted(video);
         };
         recorder.onerror = () => console.log('RECORDER.ONERROR');
+        recorder.onpause = () => console.log('RECORDER.ONPAUSE');
+        recorder.onresume = () => console.log('RECORDER.ONRESUME');
+        recorder.onstart = () => console.log('RECORDER.ONSTART');
+        recorder.start(1000);
+        setMediaRecorder(recorder);
+        setIsRecording(true);
     }
 
     function stopRecording(): void {
         setIsRecording(false);
-        if (prop.mediaStream) {
-            prop.mediaStream.getTracks().forEach((track) => {
-                track.stop();
-            });
-        } else {
-            throw 'No stream to stop!';
-        }
+        mediaRecorder?.stop();
     }
 
     function onStopRecording(): void {
@@ -90,10 +117,10 @@ export default function Record(prop: RecordProp): ReactElement {
     return (
         <div className="recording-container">
             <div className="content">
-                {countdown > 0 && (
+                {timeLeft > 0 && (
                     <div>
                         <div className="grey-background"></div>
-                        <div className="countdown">{countdown}</div>
+                        <div className="countdown">{timeLeft / 1000}</div>
                     </div>
                 )}
                 <video id="recorder" width="960" height="540" autoPlay muted ref={recorderElement}></video>
