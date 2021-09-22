@@ -3,6 +3,7 @@ enum WorkflowSteps {
     Setup,
     Recording,
     Preview,
+    Edit,
 }
 
 export default WorkflowSteps;

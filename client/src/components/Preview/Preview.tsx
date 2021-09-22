@@ -6,6 +6,7 @@ import './Preview.scss';
 interface PreviewProp {
     video: Blob | null;
     onRetryRecording(): void;
+    onEditVideo(): void;
     onSaveVideo(): void;
     onCancel(): void;
 }
@@ -23,6 +24,10 @@ export default function Preview(prop: PreviewProp): ReactElement {
 
     function onCancel(): void {
         prop.onCancel();
+    }
+
+    function onEdit(): void {
+        prop.onEditVideo();
     }
 
     function onRedo(): void {
@@ -51,6 +56,8 @@ export default function Preview(prop: PreviewProp): ReactElement {
                 <Button label="Redo" variant="secondary" onClick={onRedo} />
                 &nbsp;
                 <Button label="Cancel" variant="secondary" onClick={onCancel} />
+                &nbsp;
+                <Button label="Edit" variant="primary" onClick={onEdit} />
                 &nbsp;
                 <Button label="Save" variant="primary" onClick={onSave} />
             </div>

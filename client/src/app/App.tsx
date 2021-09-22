@@ -34,7 +34,7 @@ export default function App(): ReactElement {
                         <li>Image overlay (until 5:00pm)</li>
                     </ul>
                     <h3>
-                        Custom Solutions using{' '}
+                        Solutions for Recording Audio / Video / Screen{' '}
                         <a
                             href="https://developer.mozilla.org/en-US/docs/Web/API/Media_Streams_API"
                             target="_blank"
@@ -43,9 +43,8 @@ export default function App(): ReactElement {
                             Media Streams API
                         </a>
                     </h3>
-                    <div>I&apos;ve found three different approaches for working with this API:</div>
                     <ul>
-                        <li>Fully Custom - Quick to implement, fairly straightforward</li>
+                        <li>Fully Custom - Quick to implement, fairly straightforward - see demo</li>
                         <li>
                             <a href="https://github.com/muaz-khan/RecordRTC" target="_blank" rel="noreferrer">
                                 RecordRTC
@@ -69,6 +68,33 @@ export default function App(): ReactElement {
                             page for more info.
                         </li>
                     </ul>
+                    <h3>Solutions for Video Manipulation</h3>
+                    <ul>
+                        <li>Fully Custom using ffmpeg</li>
+                        <li>
+                            <a href="https://github.com/muaz-khan/RecordRTC" target="_blank" rel="noreferrer">
+                                RecordRTC
+                            </a>{' '}
+                            - Provides a nice wrapper around the Media and Streams API, but development looks dead and
+                            there are a lot of issues with it.
+                        </li>
+                        <li>
+                            <a href="https://github.com/collab-project/videojs-record" target="_blank" rel="noreferrer">
+                                videojs-record
+                            </a>{' '}
+                            - What seems to be the most promising wrapper around the Media and Streams API, however
+                            I&apos;m currently running into issues trying to get it integrated. See the{' '}
+                            <a
+                                href="https://collab-project.github.io/videojs-record/#/examples"
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                demo
+                            </a>{' '}
+                            page for more info.
+                        </li>
+                    </ul>
+                    <h3>Additional work to do</h3>
                     <ul>
                         <li>Identify how we can implement trim</li>
                         <li>
@@ -84,6 +110,28 @@ export default function App(): ReactElement {
                                 <li>Go over list of features and identify how they will be added in the future</li>
                             </ul>
                         </li>
+                    </ul>
+                    <h3>Open Questions</h3>
+                    <ul>
+                        <li>
+                            Understand video types and codecs{' '}
+                            <a
+                                href="https://developer.mozilla.org/en-US/docs/Web/Media/Formats/codecs_parameter"
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                here
+                            </a>
+                            and
+                            <a
+                                href="https://developer.mozilla.org/en-US/docs/Web/Media/Formats#media_file_types_and_codecs"
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                here
+                            </a>
+                        </li>
+                        <li>Understand scaling issues</li>
                     </ul>
                 </article>
             </ErrorBoundary>

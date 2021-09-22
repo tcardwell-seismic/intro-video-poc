@@ -10,6 +10,7 @@ import VideoJsAudioVideoScreenRecording from './Record/VideoJsAudioVideoScreenRe
 import './RecordingComponent.scss';
 import RecordingType from './RecordingType';
 import TypeSelection from './TypeSelection/TypeSelection';
+import Edit from './Edit/Edit';
 
 interface RecordingComponentProp {
     onCancel(): void;
@@ -70,10 +71,13 @@ export default function RecordingComponent(prop: RecordingComponentProp): ReactE
                     <Preview
                         video={video}
                         onRetryRecording={onRetryRecording}
+                        onEditVideo={onEditVideo}
                         onSaveVideo={onSaveVideo}
                         onCancel={onCancel}
                     />
                 );
+            case WorkflowSteps.Edit:
+                return <Edit video={video} onEditComplete={onSaveVideo} onCancel={onCancel} />;
             default:
                 return <div></div>;
         }
@@ -113,6 +117,10 @@ export default function RecordingComponent(prop: RecordingComponentProp): ReactE
     function onRetryRecording(): void {
         setStep(WorkflowSteps.TypeSelection);
         setVideo(null);
+    }
+
+    function onEditVideo(): void {
+        setStep(WorkflowSteps.Edit);
     }
 
     function onSaveVideo(): void {
