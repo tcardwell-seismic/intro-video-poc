@@ -25,9 +25,19 @@ export default function RecordingComponent(prop: RecordingComponentProp): ReactE
     const [audioDeviceId, setAudioDeviceId] = useState<string | undefined>(undefined);
     const [videoDeviceId, setVideoDeviceId] = useState<string | undefined>(undefined);
     const [video, setVideo] = useState<Blob | null>(null);
+    const [areEditedVideosReady, setAreEditedVideosReady] = useState(false);
+    const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
 
     useEffect(() => {
-        console.log('RecordingComponent render');
+        const ws = new WebSocket('wss://localhost:5001/stream');
+        ws.onclose = (ev) => {
+            console.log('SOCKET CLOSE');
+            setAreEditedVideosReady(true);
+        };
+
+        setWebSocket(ws);
+
+        return () => ws.close();
     }, []);
 
     function getContent(): ReactElement {
@@ -47,6 +57,7 @@ export default function RecordingComponent(prop: RecordingComponentProp): ReactE
                                 audioDeviceId={audioDeviceId}
                                 videoDeviceId={videoDeviceId}
                                 includeScreen={false}
+                                webSocket={webSocket}
                             />
                         );
                     case RecordingType.CustomAudioScreen:
@@ -57,6 +68,7 @@ export default function RecordingComponent(prop: RecordingComponentProp): ReactE
                                 audioDeviceId={audioDeviceId}
                                 videoDeviceId={videoDeviceId}
                                 includeScreen={true}
+                                webSocket={webSocket}
                             />
                         );
                     case RecordingType.Audio:
@@ -74,6 +86,7 @@ export default function RecordingComponent(prop: RecordingComponentProp): ReactE
                         onEditVideo={onEditVideo}
                         onSaveVideo={onSaveVideo}
                         onCancel={onCancel}
+                        areEditedVideosReady={areEditedVideosReady}
                     />
                 );
             case WorkflowSteps.Edit:

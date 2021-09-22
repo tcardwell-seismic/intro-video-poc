@@ -1,15 +1,9 @@
+/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable jsx-a11y/media-has-caption */
 import { Button } from '@seismic/mantle';
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
-// import { Cloudinary, CloudinaryVideo, } from '@cloudinary/url-gen';
-// // import { Transformation } from '@cloudinary/url-gen';
-// import { scale } from '@cloudinary/url-gen/actions/resize';
-// import { byAngle } from '@cloudinary/url-gen/actions/rotate';
-// import { source } from '@cloudinary/url-gen/actions/overlay';
-// import { opacity } from '@cloudinary/url-gen/actions/adjust';
-// import { image } from '@cloudinary/url-gen/qualifiers/source';
-// import { Position } from '@cloudinary/url-gen/qualifiers/position';
-// import { compass } from '@cloudinary/url-gen/qualifiers/gravity';
+import { v4 as uuidv4 } from 'uuid';
+import SeismicPlayer from '@seismic/universal-player';
 import './Edit.scss';
 
 interface EdgeProp {
@@ -20,54 +14,103 @@ interface EdgeProp {
 
 export default function Edge(prop: EdgeProp): ReactElement {
     const previewElement = useRef<HTMLVideoElement>(null);
-    const otherElement = useRef<HTMLVideoElement>(null);
-    const canvasElement = useRef<HTMLCanvasElement>(null);
-    const chunks: BlobPart[] = [];
+    const [previewUrl, setPreviewUrl] = useState('');
+    const [trimmedUrl, setTrimmedUrl] = useState('');
+    const trimmedElement = useRef<HTMLVideoElement>(null);
+    const thumbnail = useRef<HTMLImageElement>(null);
+    const gifElement = useRef<HTMLImageElement>(null);
 
     useEffect(() => {
-        async function something(canvas: HTMLCanvasElement, other: HTMLVideoElement, chunks: BlobPart[]) {
-            var stream = canvas.captureStream(25 /*fps*/);
-            const mediaRecorder = new MediaRecorder(stream, {
-                mimeType: 'video/webm; codecs=vp9',
-            });
-
-            //ondataavailable will fire in interval of `time || 4000 ms`
-            mediaRecorder.start(1000);
-
-            mediaRecorder.ondataavailable = function (event) {
-                chunks.push(event.data);
-                // after stop `dataavilable` event run one more time
-                if (mediaRecorder.state === 'recording') {
-                    mediaRecorder.stop();
+        async function getTrimmedVideo() {
+            try {
+                var result = await fetch('https://localhost:5001/stream/trim');
+                var video = await result.blob();
+                const url = URL.createObjectURL(video);
+                setTrimmedUrl(url);
+                if (trimmedElement && trimmedElement.current) {
+                    trimmedElement.current.src = url;
                 }
-            };
-
-            mediaRecorder.onstop = function () {
-                var blob = new Blob(chunks, { type: 'video/webm' });
-                var url = URL.createObjectURL(blob);
-                other.src = url;
-            };
+            } catch (err) {
+                console.error(err);
+            }
         }
 
-        if (
-            previewElement &&
-            previewElement.current &&
-            canvasElement &&
-            canvasElement.current &&
-            otherElement &&
-            otherElement.current
-        ) {
-            something(canvasElement.current, otherElement.current, chunks);
+        async function getThumbnail() {
+            try {
+                var result = await fetch('https://localhost:5001/stream/thumbnail');
+                var image = await result.blob();
+                const url = URL.createObjectURL(image);
+                if (thumbnail && thumbnail.current) {
+                    thumbnail.current.src = url;
+                }
+            } catch (err) {
+                console.error(err);
+            }
         }
-    }, [previewElement, canvasElement]);
+
+        async function getGif() {
+            try {
+                var result = await fetch('https://localhost:5001/stream/gif');
+                var gif = await result.blob();
+                const url = URL.createObjectURL(gif);
+                if (gifElement && gifElement.current) {
+                    gifElement.current.src = url;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        getTrimmedVideo();
+        getThumbnail();
+        getGif();
+    }, []);
 
     useEffect(() => {
+        const url = URL.createObjectURL(prop.video);
+        setPreviewUrl(url);
         if (previewElement && previewElement.current && prop.video) {
-            const url = URL.createObjectURL(prop.video);
             previewElement.current.src = url;
             return () => URL.revokeObjectURL(url);
         }
     }, [previewElement]);
+
+    function buildFakeUPManifest(url: string): any {
+        return {
+            ContentManifestId: uuidv4(),
+            AllowDownload: true,
+            AllowPrint: true,
+            Content: {
+                TeamsiteId: '',
+                Id: uuidv4(),
+                VersionId: uuidv4(),
+                Repository: 'library',
+                Type: 'file',
+            },
+            CoverImageUrl: '',
+            Manifests: [
+                {
+                    FormatType: 'Video',
+                    NativeFormat: 'webm',
+                    Url: url,
+                    DownloadUrl: url,
+                    Mode: 'read',
+                    Title: 'Mp4',
+                    ViewerDetail: {},
+                    Permissions: {
+                        AllowDownload: false,
+                        AllowPrint: false,
+                    },
+                    Error: null,
+                    ErrorReason: 'None',
+                    DowngradeReason: null,
+                    IsCacheable: true,
+                },
+            ],
+            Modes: ['read'],
+            LogUrl: 'https://localhost/logs',
+        };
+    }
 
     function onCancel(): void {
         prop.onCancel();
@@ -81,11 +124,26 @@ export default function Edge(prop: EdgeProp): ReactElement {
         <div className="edit-container">
             <div className="content">
                 <div className="left">
-                    <video id="preview" width="640" height="480" autoPlay controls ref={previewElement}></video>
+                    <div>Original</div>
+                    {previewUrl && (
+                        <div className="up-container">
+                            <SeismicPlayer config={buildFakeUPManifest(previewUrl)} />
+                        </div>
+                    )}
+                    {/* <video id="preview" width="384" height="260" controls ref={previewElement}></video> */}
+                    <div>Trimmed</div>
+                    {trimmedUrl && (
+                        <div className="up-container">
+                            <SeismicPlayer config={buildFakeUPManifest(trimmedUrl)} />
+                        </div>
+                    )}
+                    {/* <video id="trim" width="384" height="260" controls ref={trimmedElement}></video> */}
                 </div>
                 <div className="right">
-                    <canvas id="preview" width="640" height="480" ref={canvasElement}></canvas>
-                    <video id="other" width="640" height="480" autoPlay controls ref={otherElement}></video>
+                    <div>Thumbnail</div>
+                    <img id="thumbnail" width="384" height="260" ref={thumbnail}></img>
+                    <div>Gif</div>
+                    <img id="gif" width="384" height="260" ref={gifElement}></img>
                 </div>
             </div>
             <div className="footer">

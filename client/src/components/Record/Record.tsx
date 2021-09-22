@@ -7,6 +7,7 @@ interface RecordProp {
     audioDeviceId: string | undefined;
     videoDeviceId: string | undefined;
     includeScreen: boolean;
+    webSocket: WebSocket | null;
     onRecordingCompleted(video: Blob): void;
     onCancel(): void;
 }
@@ -74,6 +75,9 @@ export default function Record(prop: RecordProp): ReactElement {
         recorder.ondataavailable = (ev): void => {
             console.log('RECORDER.ONDATAAVAILABLE');
             chunks.push(ev.data);
+            if (prop.webSocket) {
+                prop.webSocket.send(ev.data);
+            }
         };
         recorder.onstop = () => {
             console.log('RECORDER.ONSTOP');
@@ -82,6 +86,9 @@ export default function Record(prop: RecordProp): ReactElement {
                     console.log('Stopping tracks!');
                     track.stop();
                 });
+                if (prop.webSocket) {
+                    prop.webSocket.send('Complete');
+                }
             } else {
                 throw 'No stream to stop!';
             }
