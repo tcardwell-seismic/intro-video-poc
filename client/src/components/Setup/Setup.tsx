@@ -69,6 +69,7 @@ export default function Setup(prop: SetupProp): ReactElement {
     }, [mediaStream, recorderElement]);
 
     useEffect(() => {
+        console.log('Audio Device Change');
         async function getMediaStream() {
             try {
                 releaseMediaStream();
@@ -85,7 +86,9 @@ export default function Setup(prop: SetupProp): ReactElement {
             }
         }
 
-        getMediaStream();
+        if (selectedVideoDevice && selectedVideoDevice) {
+            getMediaStream();
+        }
     }, [selectedAudioDevice, selectedVideoDevice]);
 
     function releaseMediaStream() {
@@ -105,10 +108,7 @@ export default function Setup(prop: SetupProp): ReactElement {
     }
 
     function onSetupComplete(): void {
-        if (!mediaStream) {
-            throw 'Error occurred attempting to retrieve media stream';
-        }
-
+        releaseMediaStream();
         prop.onSetupComplete(selectedAudioDevice?.deviceId, selectedVideoDevice?.deviceId);
     }
 

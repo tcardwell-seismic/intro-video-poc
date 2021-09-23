@@ -16,6 +16,7 @@ interface VideoJsAudioVideoRecordingProp {
 
 export default function VideoJsAudioVideoRecording(props: VideoJsAudioVideoRecordingProp): ReactElement {
     const videoNode = useRef<HTMLVideoElement>(null);
+    const previewNode = useRef<HTMLVideoElement>(null);
     let player: any;
 
     const videoJsOptions = {
@@ -65,6 +66,9 @@ export default function VideoJsAudioVideoRecording(props: VideoJsAudioVideoRecor
                 // recordedData is a blob object containing the recorded data that
                 // can be downloaded by the user, stored on server etc.
                 console.log('finished recording: ', player.recordedData);
+                if (previewNode && previewNode.current) {
+                    previewNode.current.src = URL.createObjectURL(player.recordedData);
+                }
             });
 
             // error handling
@@ -86,6 +90,7 @@ export default function VideoJsAudioVideoRecording(props: VideoJsAudioVideoRecor
             <div data-vjs-player>
                 <video id="myVideo" ref={videoNode} className="video-js vjs-default-skin" playsInline></video>
             </div>
+            <video id="preview" width="320" height="240" ref={previewNode} controls autoPlay></video>
         </div>
     );
 }

@@ -4,6 +4,7 @@ enum RecordingType {
     Audio,
     AudioVideo,
     AudioScreen,
+    AudioVideoScreen,
 }
 
 export default RecordingType;

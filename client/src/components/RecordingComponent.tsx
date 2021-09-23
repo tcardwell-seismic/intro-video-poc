@@ -29,16 +29,28 @@ export default function RecordingComponent(prop: RecordingComponentProp): ReactE
     const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
 
     useEffect(() => {
-        const ws = new WebSocket('wss://localhost:5001/stream');
-        ws.onclose = (ev) => {
-            console.log('SOCKET CLOSE');
-            setAreEditedVideosReady(true);
-        };
-
-        setWebSocket(ws);
-
-        return () => ws.close();
+        initializeWebSocket();
     }, []);
+
+    useEffect(() => {
+        console.log('WebSocket hook!', webSocket);
+        if (webSocket) {
+            webSocket.onclose = () => {
+                console.log('SOCKET CLOSE');
+                setAreEditedVideosReady(true);
+            };
+
+            return () => {
+                console.log('Manually closing web socket');
+                webSocket.close();
+            };
+        }
+    }, [webSocket]);
+
+    function initializeWebSocket() {
+        const ws = new WebSocket('wss://localhost:5001/stream');
+        setWebSocket(ws);
+    }
 
     function getContent(): ReactElement {
         console.log('GetContent', step, recordingType, audioDeviceId, videoDeviceId);
@@ -77,6 +89,8 @@ export default function RecordingComponent(prop: RecordingComponentProp): ReactE
                         return <VideoJsAudioVideoRecording onCancel={onCancel} />;
                     case RecordingType.AudioScreen:
                         return <VideoJsAudioVideoScreenRecording onCancel={onCancel} />;
+                    case RecordingType.AudioVideoScreen:
+                        return <VideoJsAudioVideoScreenRecording onCancel={onCancel} />;
                 }
             case WorkflowSteps.Preview:
                 return (
@@ -90,7 +104,7 @@ export default function RecordingComponent(prop: RecordingComponentProp): ReactE
                     />
                 );
             case WorkflowSteps.Edit:
-                return <Edit video={video} onEditComplete={onSaveVideo} onCancel={onCancel} />;
+                return <Edit onEditComplete={onSaveVideo} onCancel={onCancel} />;
             default:
                 return <div></div>;
         }
@@ -110,6 +124,7 @@ export default function RecordingComponent(prop: RecordingComponentProp): ReactE
             case RecordingType.Audio:
             case RecordingType.AudioVideo:
             case RecordingType.AudioScreen:
+            case RecordingType.AudioVideoScreen:
                 setStep(WorkflowSteps.Recording);
                 break;
         }
@@ -128,7 +143,8 @@ export default function RecordingComponent(prop: RecordingComponentProp): ReactE
     }
 
     function onRetryRecording(): void {
-        setStep(WorkflowSteps.TypeSelection);
+        initializeWebSocket();
+        setStep(WorkflowSteps.Recording);
         setVideo(null);
     }
 

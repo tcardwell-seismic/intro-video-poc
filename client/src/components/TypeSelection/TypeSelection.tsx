@@ -42,14 +42,14 @@ export default function TypeSelection(props: TypeSelectionProps): ReactElement {
                         checked={checkedValue === RecordingType.Audio}
                         onChange={() => setCheckedValue(RecordingType.Audio)}
                     />{' '}
-                    Audio Only
+                    video.js Audio Only
                 </label>
                 <label>
                     <Radio
-                        checked={checkedValue === RecordingType.AudioVideo}
-                        onChange={() => setCheckedValue(RecordingType.AudioVideo)}
+                        checked={checkedValue === RecordingType.AudioVideoScreen}
+                        onChange={() => setCheckedValue(RecordingType.AudioVideoScreen)}
                     />{' '}
-                    Audio and Video
+                    Record RTC
                 </label>
             </div>
             <div className="footer">

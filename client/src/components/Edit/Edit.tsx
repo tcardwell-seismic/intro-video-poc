@@ -7,7 +7,6 @@ import SeismicPlayer from '@seismic/universal-player';
 import './Edit.scss';
 
 interface EdgeProp {
-    video: Blob | null;
     onEditComplete(): void;
     onCancel(): void;
 }
@@ -21,6 +20,20 @@ export default function Edge(prop: EdgeProp): ReactElement {
     const gifElement = useRef<HTMLImageElement>(null);
 
     useEffect(() => {
+        async function getMp4Video() {
+            try {
+                var result = await fetch('https://localhost:5001/stream/mp4');
+                var video = await result.blob();
+                const url = URL.createObjectURL(video);
+                setPreviewUrl(url);
+                if (previewElement && previewElement.current) {
+                    previewElement.current.src = url;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
         async function getTrimmedVideo() {
             try {
                 var result = await fetch('https://localhost:5001/stream/trim');
@@ -61,19 +74,20 @@ export default function Edge(prop: EdgeProp): ReactElement {
             }
         }
 
+        getMp4Video();
         getTrimmedVideo();
         getThumbnail();
         getGif();
     }, []);
 
-    useEffect(() => {
-        const url = URL.createObjectURL(prop.video);
-        setPreviewUrl(url);
-        if (previewElement && previewElement.current && prop.video) {
-            previewElement.current.src = url;
-            return () => URL.revokeObjectURL(url);
-        }
-    }, [previewElement]);
+    // useEffect(() => {
+    //     const url = URL.createObjectURL(prop.video);
+    //     setPreviewUrl(url);
+    //     if (previewElement && previewElement.current && prop.video) {
+    //         previewElement.current.src = url;
+    //         return () => URL.revokeObjectURL(url);
+    //     }
+    // }, [previewElement]);
 
     function buildFakeUPManifest(url: string): any {
         return {
