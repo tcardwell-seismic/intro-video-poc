@@ -141,7 +141,10 @@ export default function Edge(prop: EdgeProp): ReactElement {
                     <div>Original</div>
                     {previewUrl && (
                         <div className="up-container">
-                            <SeismicPlayer config={buildFakeUPManifest(previewUrl)} />
+                            <SeismicPlayer
+                                config={buildFakeUPManifest(previewUrl)}
+                                onPlayerEvent={(e: any) => console.log('Player Event', e)}
+                            />
                         </div>
                     )}
                     {/* <video id="preview" width="384" height="260" controls ref={previewElement}></video> */}
