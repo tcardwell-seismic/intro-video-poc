@@ -123,10 +123,10 @@ exports.getBaseWebpackConfig = ({ mode, babelOptions }) => {
         devServer: isProduction
             ? undefined
             : {
-                  contentBase: '/public/',
-                  disableHostCheck: true,
-                  https: true,
-              },
+                contentBase: '/public/',
+                disableHostCheck: true,
+                //https: true,
+            },
         module: {
             rules: [
                 {

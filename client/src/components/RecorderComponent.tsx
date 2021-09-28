@@ -7,7 +7,7 @@ import Preview from './Preview/Preview';
 import VideoJsAudioRecording from './Record/VideoJsAudioRecording/VideoJsAudioRecording';
 import VideoJsAudioVideoRecording from './Record/VideoJsAudioVideoRecording/VideoJsAudioVideoRecording';
 import VideoJsAudioVideoScreenRecording from './Record/VideoJsAudioVideoScreenRecording/VideoJsAudioVideoScreenRecording';
-import './RecordingComponent.scss';
+import './RecorderComponent.scss';
 import RecordingType from './RecordingType';
 import TypeSelection from './TypeSelection/TypeSelection';
 import Edit from './Edit/Edit';
@@ -28,29 +28,29 @@ export default function RecordingComponent(prop: RecordingComponentProp): ReactE
     const [areEditedVideosReady, setAreEditedVideosReady] = useState(false);
     const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
 
-    useEffect(() => {
-        initializeWebSocket();
-    }, []);
+    // useEffect(() => {
+    //     initializeWebSocket();
+    // }, []);
 
-    useEffect(() => {
-        console.log('WebSocket hook!', webSocket);
-        if (webSocket) {
-            webSocket.onclose = () => {
-                console.log('SOCKET CLOSE');
-                setAreEditedVideosReady(true);
-            };
+    // useEffect(() => {
+    //     console.log('WebSocket hook!', webSocket);
+    //     if (webSocket) {
+    //         webSocket.onclose = () => {
+    //             console.log('SOCKET CLOSE');
+    //             setAreEditedVideosReady(true);
+    //         };
 
-            return () => {
-                console.log('Manually closing web socket');
-                webSocket.close();
-            };
-        }
-    }, [webSocket]);
+    //         return () => {
+    //             console.log('Manually closing web socket');
+    //             webSocket.close();
+    //         };
+    //     }
+    // }, [webSocket]);
 
-    function initializeWebSocket() {
-        const ws = new WebSocket('wss://localhost:5001/stream');
-        setWebSocket(ws);
-    }
+    // function initializeWebSocket() {
+    //     const ws = new WebSocket('wss://localhost:5001/stream');
+    //     setWebSocket(ws);
+    // }
 
     function getContent(): ReactElement {
         console.log('GetContent', step, recordingType, audioDeviceId, videoDeviceId);
@@ -143,7 +143,7 @@ export default function RecordingComponent(prop: RecordingComponentProp): ReactE
     }
 
     function onRetryRecording(): void {
-        initializeWebSocket();
+        //initializeWebSocket();
         setStep(WorkflowSteps.Recording);
         setVideo(null);
     }

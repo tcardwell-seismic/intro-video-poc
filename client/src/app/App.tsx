@@ -1,9 +1,9 @@
 /* eslint-disable jsx-a11y/alt-text */
 import React, { ReactElement, useState } from 'react';
-import { Theme, seismicTheme, IconVideo, Modal, Tile } from '@seismic/mantle';
+import { Theme, seismicTheme, IconVideo, Modal } from '@seismic/mantle';
 import './App.scss';
 import ErrorBoundary from 'src/components/ErrorBoundary';
-import RecordingComponent from 'src/components/RecordingComponent';
+import RecordingComponent from 'src/components/RecorderComponent';
 
 export default function App(): ReactElement {
     const [showModal, setShowModal] = useState(false);
